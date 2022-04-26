@@ -64,11 +64,20 @@ collapse (((x, y), v):xys) grid = do
            xys
            [(3 * x0 + dx, 3 * y0 + dy) | dx <- [1 .. 3], dy <- [1 .. 3]]
 
-collapseRandom :: SudokuGrid -> IO [(SudokuGrid, Coords)]
+collapseRandom :: SudokuGrid -> Maybe [(SudokuGrid, Coords)]
 collapseRandom grid = case l of
-  [] -> return [(grid, (0, 0))]
-  ((coords, set):_) -> fmap ((grid, coords):)
-    $ collapseRandom . head . Maybe.catMaybes
-    $ [collapse [(coords, v)] grid | v <- S.elems set]
+  [] -> Just [(grid, (0, 0))]
+  ((coords, set):_) -> fmap
+    ((grid, coords):)
+    (case gridAttempts of
+       [] -> Maybe.Nothing
+       _  -> maybeHead
+         $ Maybe.catMaybes [collapseRandom attempt | attempt <- gridAttempts])
+    where
+      gridAttempts =
+        Maybe.catMaybes $ [collapse [(coords, v)] grid | v <- S.elems set]
   where
     l = lowestEntropy grid
+
+    maybeHead [] = Nothing
+    maybeHead (h:_) = Just h

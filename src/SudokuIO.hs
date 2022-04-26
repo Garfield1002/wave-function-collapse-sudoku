@@ -5,7 +5,7 @@ import qualified Data.Array as A
 import           WFC (SudokuGrid)
 
 filePath :: FilePath
-filePath = "./sudoku2.txt"
+filePath = "./sudoku.txt"
 
 toIntList :: B.ByteString -> [Int]
 toIntList bs = toInt <$> B.split ' ' bs

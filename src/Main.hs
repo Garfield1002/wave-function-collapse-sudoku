@@ -108,7 +108,7 @@ main = do
         A.listArray ((1, 1), (9, 9)) (repeat (Left (S.fromAscList [1 .. 9])))
       temp = L.filter ((/= 0) . snd) . A.assocs $ base
   let (a, history) = L.foldl propagate (grid, []) temp
-  solutionSteps <- collapseRandom a
+  let solutionSteps = Maybe.fromJust (collapseRandom a)
   reanimate
     $ parA backgroundAnim
     $ foldl
