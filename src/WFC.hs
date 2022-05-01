@@ -10,12 +10,8 @@ import qualified Data.List as L
 import qualified Control.Monad as M
 import qualified Data.Either as E
 import qualified Data.Maybe as Maybe
-
-type Coords = (Int, Int)
-
-type SudokuCell = Either (S.Set Int) Int
-
-type SudokuGrid = A.Array Coords SudokuCell
+import           Rules (rules)
+import           SudokuTypes (SudokuGrid, Coords)
 
 type Stack = [(Coords, Int)]
 
@@ -29,15 +25,16 @@ lowestEntropy = L.sortOn foo
     foo = S.size . snd
 
 -- | Propagates the change at a given index
-propagateAtIndex :: Stack -> [Coords] -> Int -> SudokuGrid -> Maybe SudokuGrid
-propagateAtIndex _ [] _ grid = Just grid
-propagateAtIndex stack ((x, y):xys) v grid = do
+propagateAtIndex
+  :: Stack -> [(Coords, S.Set Int)] -> SudokuGrid -> Maybe SudokuGrid
+propagateAtIndex _ [] grid = Just grid
+propagateAtIndex stack (((x, y), vs):xyvs) grid = do
   (stack', grid') <- updateGrid
-  propagateAtIndex stack' xys v grid'
+  propagateAtIndex stack' xyvs grid'
   where
     updateGrid = case grid ! (x, y) of
       Left set
-        -> (let set' = S.delete v set
+        -> (let set' = S.difference set vs
             in case S.size set' of
                  0 -> Nothing
                  1 -> let v = S.elemAt 0 . E.fromLeft S.empty $ grid ! (x, y)
@@ -49,20 +46,9 @@ propagateAtIndex stack ((x, y):xys) v grid = do
 -- | Collapses a given cell with a given value
 collapse :: Stack -> SudokuGrid -> Maybe SudokuGrid
 collapse [] grid = return grid
-collapse (((x, y), v):xys) grid = do
-  grid <- propagateColumn v $ grid // [((x, y), Right v)]
-  grid <- propagateRow v grid
-  propagateSquare v grid
-  where
-    propagateRow = propagateAtIndex xys [(x', y) | x' <- [1 .. 9]]
-
-    propagateColumn = propagateAtIndex xys [(x, y') | y' <- [1 .. 9]]
-
-    propagateSquare =
-      let (x0, y0) = (quot (x - 1) 3, quot (y - 1) 3)
-      in propagateAtIndex
-           xys
-           [(3 * x0 + dx, 3 * y0 + dy) | dx <- [1 .. 3], dy <- [1 .. 3]]
+collapse (xyv@((x, y), v):xyvs) grid = do
+  let vs = rules xyv
+  propagateAtIndex xyvs vs $ grid // [((x, y), Right v)]
 
 collapseRandom :: SudokuGrid -> Maybe [(SudokuGrid, Coords)]
 collapseRandom grid = case l of

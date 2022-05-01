@@ -2,7 +2,7 @@ module SudokuIO where
 
 import qualified Data.ByteString.Lazy.Char8 as B
 import qualified Data.Array as A
-import           WFC (SudokuGrid)
+import           SudokuTypes (SudokuGrid)
 
 filePath :: FilePath
 filePath = "./sudoku.txt"

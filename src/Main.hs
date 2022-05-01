@@ -8,8 +8,10 @@ import qualified Data.Array as A
 import qualified Data.List as L
 import qualified Data.Maybe as Maybe
 import           WFC
+import           SudokuTypes
 import           SudokuIO
 import           Codec.Picture (PixelRGBA8(..))
+import           Rules (rules)
 
 smallGrid :: SVG
 smallGrid = withStrokeWidth 0.05 . withStrokeColor "gray" . withFillOpacity 0
@@ -82,25 +84,24 @@ highlight (y, x) = signalA (bellS 2)
   $ mkAnimation 0.25 (\t -> withFillOpacity (0.3 * t) highlightSVG)
   where
     highlightSVG = scale 2.5 . withFillColor "white" . mkGroup
-      $ [highlightLine, highlightCol, highlightSquare]
+      $ [translate (fromIntegral x' / 3 - 5 / 3) (5 / 3 - fromIntegral y' / 3)
+          $ mkRect (1 / 3) (1 / 3)
+        | ((x', y'), _) <- rules ((x, y), 1)]
 
-    highlightLine = mkGroup
-      [translate (fromIntegral (dx - 1)) (5 / 3 - fromIntegral y / 3)
-        $ mkRect 1
-        $ 1 / 3
-      | dx <- [0 .. 2]
-      , dx /= quot (x - 1) 3]
-
-    highlightCol = mkGroup
-      [translate (fromIntegral x / 3 - 5 / 3) (fromIntegral (-dy + 1))
-        $ mkRect (1 / 3) 1
-      | dy <- [0 .. 2]
-      , dy /= quot (y - 1) 3]
-
-    highlightSquare =
-      let (x0, y0) = (quot (x - 1) 3, quot (y - 1) 3)
-      in translate (fromIntegral x0 - 1) (1 - fromIntegral y0) $ mkRect 1 1
-
+    -- highlightLine = mkGroup
+    --   [translate (fromIntegral (dx - 1)) (5 / 3 - fromIntegral y / 3)
+    --     $ mkRect 1
+    --     $ 1 / 3
+    --   | dx <- [0 .. 2]
+    --   , dx /= quot (x - 1) 3]
+    -- highlightCol = mkGroup
+    --   [translate (fromIntegral x / 3 - 5 / 3) (fromIntegral (-dy + 1))
+    --     $ mkRect (1 / 3) 1
+    --   | dy <- [0 .. 2]
+    --   , dy /= quot (y - 1) 3]
+    -- highlightSquare =
+    --   let (x0, y0) = (quot (x - 1) 3, quot (y - 1) 3)
+    --   in translate (fromIntegral x0 - 1) (1 - fromIntegral y0) $ mkRect 1 1
 main :: IO ()
 main = do
   base <- readSudoku

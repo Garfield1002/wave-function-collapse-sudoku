@@ -19,7 +19,9 @@ executable animate
 
   other-modules:
         SudokuIO,
-        WFC
+        WFC,
+        Rules,
+        SudokuTypes
 
   default-language:   Haskell2010
 
