@@ -6,6 +6,8 @@ https://user-images.githubusercontent.com/53104608/165240320-c425d37c-1d68-4cb9-
 
 It can also be used to solve more esoteric sudoku such as the [miracle sudoku by Mitchell Lee, solved by cracking the cryptic](https://www.youtube.com/watch?v=yKf9aUIxdb4)
 
+https://user-images.githubusercontent.com/53104608/166153410-acbf98f9-26a8-4f38-84b1-8c75c87cc069.mp4
+
 In this version,
 
 > Normal Sudoku rules apply. Any two cells separated by a knight's move or a king's move (in chess) cannot contain the same digit. Any two orthogonally adjacent cells cannot contain consecutive digits.
